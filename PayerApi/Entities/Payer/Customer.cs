@@ -8,5 +8,7 @@ namespace Ork.Entities.Payer
         public string StripeCustomerId { get; set; }
         public string GVZK { get; set; }          // Keep this field (session validation)
         public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+
+        public DateTime? DeletedAt { get; set; }
     }
 }

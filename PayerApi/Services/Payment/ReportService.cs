@@ -15,55 +15,39 @@ public class ReportService : IReportService
 
     public async Task<CustomerMetricsResponse> GetCustomerMetricsAsync()
     {
-        var results = await _context.Database
-            .SqlQuery<CustomerMetricsResponse>($"""
-                WITH customer_status AS (
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var windowEnd = now + (10L * 24 * 60 * 60);
 
-                    SELECT
-                    c."StripeCustomerId" AS "CustomerId",
+        var customers = _context.Customers
+            .Where(customer => customer.DeletedAt == null);
 
+        var customersWithValidWallets = customers
+            .Where(customer =>
+                customer.Subscriptions.Any(subscription =>
+                    subscription.Wallets.Any(wallet =>
+                        wallet.Status == "Active" &&
+                        wallet.Expiry > now)));
+        
+        var customersWithExpiringWallets = customers
+            .Where(customer =>
+                customer.Subscriptions.Any(subscription =>
+                    subscription.Wallets.Any(wallet =>
+                        wallet.Status == "Active" &&
+                        wallet.Expiry > now &&
+                        wallet.Expiry <= windowEnd)));
+        
+        var total = await customers.CountAsync();
 
+        var valid = await customersWithValidWallets.CountAsync();
 
-                        CASE
-                            WHEN NOT EXISTS (
-                                SELECT 1
-                                FROM "Subscriptions" AS s
-                                JOIN "Wallets" AS w
-                                    ON w."SubscriptionId" = s."Id"
-                                WHERE s."CustomerId" = c."StripeCustomerId"
-                                    AND w."Status" = 'Active'
-                                    AND w."Expiry" > EXTRACT(EPOCH FROM NOW())
+        var expiring = await customersWithExpiringWallets.CountAsync();
 
-                            ) THEN 'inactive'
-
-                            WHEN EXISTS (
-                                SELECT 1
-                                FROM "Subscriptions" AS s
-                                JOIN "Wallets" AS w
-                                    ON w."SubscriptionId" = s."Id"
-                                WHERE s."CustomerId" = c."StripeCustomerId"
-                                    AND w."Status" = 'Active'
-                                    AND w."Expiry" > EXTRACT(EPOCH FROM NOW())
-                                    AND w."Expiry" <= EXTRACT(EPOCH FROM NOW()) + 864000
-
-                            ) THEN 'expiring'
-
-                            ELSE 'active'
-                        END AS "Status"
-
-                FROM "Customers" AS c
-                WHERE c."DeletedAt" IS NULL
-            )
-
-            SELECT
-                COUNT(*)::integer AS "Total",
-                COUNT(*) FILTER (WHERE "Status" = 'active')::integer AS "Active",
-                COUNT(*) FILTER (WHERE "Status" = 'expiring')::integer AS "Expiring",
-                COUNT(*) FILTER (WHERE "Status" = 'inactive')::integer AS "Inactive"
-            FROM customer_status;
-            """).ToListAsync();
-
-        return results[0];
+        return new CustomerMetricsResponse
+        {
+            Total = total,
+            Active = valid - expiring,
+            Expiring = expiring,
+            Inactive = total - valid
+        };
     }
 }
-

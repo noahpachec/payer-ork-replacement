@@ -10,6 +10,9 @@ public class CustomerMetricsResponse
     [JsonPropertyName("Active")]
     public int Active { get; set; }
 
+    [JsonPropertyName("Expiring")]
+    public int Expiring { get; set; }
+
     [JsonPropertyName("Inactive")]
     public int Inactive { get; set; }
 }
