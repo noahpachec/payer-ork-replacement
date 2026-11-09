@@ -12,6 +12,7 @@ builder.Services.AddDbContext<PayerDataContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetValue<string>("Payer_DB_Connection_String")));
 builder.Services.AddScoped<IPayerService, PayerService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 var app = builder.Build();
 
