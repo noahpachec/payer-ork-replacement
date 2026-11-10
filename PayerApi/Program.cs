@@ -13,6 +13,8 @@ builder.Services.AddDbContext<PayerDataContext>(options =>
 builder.Services.AddScoped<IPayerService, PayerService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ICustomerAdminService, CustomerAdminService>();
+
 
 var app = builder.Build();
 
