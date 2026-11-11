@@ -15,5 +15,11 @@ public interface ICustomerAdminService
         string customerId
     );
 
+    Task<CustomerWalletsResponse> GetCustomerWalletsAsync(
+        string customerId,
+        int page,
+        int limit
+    );
+
 
 }

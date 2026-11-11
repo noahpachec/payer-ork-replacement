@@ -138,5 +138,48 @@ public class CustomerAdminService : ICustomerAdminService
 
     }
 
+    public async Task <CustomerWalletsResponse> GetCustomerWalletsAsync(
+        string customerId,
+        int page,
+        int limit)
+    {
+        var orderedWallets = _context.Subscriptions
+            .Where(subscription => subscription.CustomerId == customerId)
+            .SelectMany(subscription => subscription.Wallets)
+            .OrderByDescending(wallet => wallet.CreatedAt)
+            .ThenByDescending(wallet => wallet.WalletPK);
 
+        var total = await orderedWallets.CountAsync();
+
+        var offset = checked((page - 1) * limit);
+
+        var data = await orderedWallets
+            .Skip(offset)
+            .Take(limit)
+            .Select(wallet => new CustomerWalletDetails
+            {
+                WalletPK = wallet.WalletPK,
+                SubscriptionId = wallet.SubscriptionId,
+                Index = wallet.Index,
+                Id = wallet.Id,
+                DebitCounter = wallet.DebitCounter,
+                Status = wallet.Status,
+                Expiry = wallet.Expiry,
+                CreatedAt = wallet.CreatedAt,
+                UpdatedAt = wallet.UpdatedAt,
+            })
+            .ToListAsync();
+
+        return new CustomerWalletsResponse
+        {
+            Data = data,
+            Pagination = new CustomerPagination
+            {
+                Page = page,
+                Limit = limit,
+                Total = total,
+                TotalPages = (int)Math.Ceiling((double)total / limit)
+            }
+        };
+    }
 }

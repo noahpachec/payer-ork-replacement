@@ -99,5 +99,17 @@ namespace Ork.Controllers.Payer
             return Ok(details);
         }
 
+        [HttpGet("{id}/Wallets")]
+        public async Task<IActionResult> GetCustomerWallets(
+            [FromRoute] string id,
+            [FromQuery] int page = 1,
+            [FromQuery] int limit = 25
+            )
+        {
+            var wallets = await _customerAdminService.GetCustomerWalletsAsync(id, page, limit);
+
+            return Ok(wallets);
+        }
+
     }   
 }
