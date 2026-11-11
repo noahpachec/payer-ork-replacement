@@ -18,10 +18,13 @@ namespace Ork.Controllers.Payer
 		private IPayerService _payerService;
 		private IWalletService _walletService;
 
-		public SubscriptionController(IPayerService payerService, IWalletService walletService)
+		private IReportService _reportService;
+
+		public SubscriptionController(IPayerService payerService, IWalletService walletService, IReportService reportService)
 		{
 			_payerService = payerService;
 			_walletService = walletService;
+			_reportService = reportService;
 		}
 
 		// Exemplar endpoint: proves the EF connection by running PayerService's
@@ -42,11 +45,22 @@ namespace Ork.Controllers.Payer
 		// 	return Ok(wallet);
 		// }
 
-		[HttpGet("GetAllSubscriptions")]
+		[HttpGet("Subscriptions")]
 		public IActionResult GetAllSubscriptions()
 		{
 			return Ok(_payerService.GetAllSubscriptions());
 		}
+
+		[HttpGet("MonthlySubscriptionsReport")]
+		public async Task<IActionResult> GetMonthlySubscriptionsReport()
+		{
+			var report =
+				await _reportService.GetMonthlySubscriptionReportAsync();
+
+			return Ok(report);
+
+		}
+
 
 	}
 }

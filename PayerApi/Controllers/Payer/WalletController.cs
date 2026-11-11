@@ -24,7 +24,7 @@ namespace Ork.Controllers.Payer
 			_walletService = walletService;
 		}
 
-		[HttpGet("GetAllWallets")]
+		[HttpGet("Wallets")]
 		public IActionResult GetAllWallets()
 		{
 			return Ok(_walletService.GetAllWallets());

@@ -4,6 +4,8 @@ namespace Ork.Services.Payment;
 
 public interface IReportService
 {
-Task<CustomerMetricsResponse> GetCustomerMetricsAsync();
+    Task<CustomerMetricsResponse> GetCustomerMetricsAsync();
+
+    Task<List<MonthlySubscriptionReportResponse>> GetMonthlySubscriptionReportAsync();
 }
 

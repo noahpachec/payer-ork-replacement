@@ -50,4 +50,37 @@ public class ReportService : IReportService
             Inactive = total - valid
         };
     }
+
+    public async Task<List<MonthlySubscriptionReportResponse>> GetMonthlySubscriptionReportAsync()
+    {
+        var year = DateTime.UtcNow.Year;
+
+        var results = new List<MonthlySubscriptionReportResponse>();
+
+        for (var month = 1; month <= 12; month ++)
+        {
+            var monthStart = new DateTimeOffset(
+                year, month, 1, 0, 0, 0, TimeSpan.Zero);
+
+            var nextMonthStart = monthStart.AddMonths(1);
+
+            var startTimestamp = monthStart.ToUnixTimeSeconds();
+
+            var endTimeStamp = nextMonthStart.ToUnixTimeSeconds();
+
+            var count = await _context.Subscriptions
+                .CountAsync(subscription =>
+                subscription.CreatedAt >= startTimestamp &&
+                subscription.CreatedAt < endTimeStamp);
+
+            results.Add(new MonthlySubscriptionReportResponse
+            {
+                Month = monthStart.UtcDateTime,
+                NewSubscriptions = count
+            });
+
+        }
+
+        return results;
+    }
 }
