@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Ork.Models.Payer;
 using Ork.Services.Payment;
 
 
@@ -120,5 +121,15 @@ namespace Ork.Controllers.Payer
             return NoContent();
         }
 
+        [HttpPatch("BulkDelete")]
+        public async Task<IActionResult> SoftDeleteCustomers(
+            [FromBody] BulkDeleteCustomersRequest request)
+            {
+                var updatedCount =
+                    await _customerAdminService.SoftDeleteCustomersAsync(
+                        request.CustomerIds);
+                
+                return Ok(new { updatedCount });
+            }
     }   
 }

@@ -196,4 +196,19 @@ public class CustomerAdminService : ICustomerAdminService
         
         return updatedCount;
     }
+
+    public async Task<int> SoftDeleteCustomersAsync(List<string> customerIds)
+    {
+        var deletedAt = DateTime.UtcNow;
+
+        var updatedCount = await _context.Customers
+            .Where(customer =>
+                customerIds
+                    .Contains(customer.StripeCustomerId) &&
+                    customer.DeletedAt == null)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(customer => customer.DeletedAt, deletedAt));
+            
+        return updatedCount;
+    }
 }

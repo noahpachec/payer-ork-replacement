@@ -23,4 +23,5 @@ public interface ICustomerAdminService
 
     Task<int> SoftDeleteCustomerAsync(string customerId);
 
+    Task<int> SoftDeleteCustomersAsync(List<string> customerIds);
 }
