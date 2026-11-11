@@ -111,5 +111,14 @@ namespace Ork.Controllers.Payer
             return Ok(wallets);
         }
 
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> SoftDeleteCustomer(
+            [FromRoute] string id)
+        {
+            await _customerAdminService.SoftDeleteCustomerAsync(id);
+
+            return NoContent();
+        }
+
     }   
 }

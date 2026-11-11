@@ -21,5 +21,6 @@ public interface ICustomerAdminService
         int limit
     );
 
+    Task<int> SoftDeleteCustomerAsync(string customerId);
 
 }
