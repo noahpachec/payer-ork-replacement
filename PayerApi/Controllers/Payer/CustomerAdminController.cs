@@ -131,5 +131,44 @@ namespace Ork.Controllers.Payer
                 
                 return Ok(new { updatedCount });
             }
+        
+        [HttpPatch("{subscriptionId}/UpdateSubscription")]
+        public async Task<IActionResult> UpdateSubscriptionSettings(
+            [FromRoute] string subscriptionId,
+            [FromBody] UpdateSubscriptionSettingsRequest request)
+        {
+            if (
+                !ModelState.IsValid ||
+                request == null ||
+                request.MaxAccounts == null ||
+                request.MaxAccounts < 0 ||
+                request.MaxConcurrentAccountsPerMonth == null ||
+                request.MaxConcurrentAccountsPerMonth < 0 ||
+                request.AllowVendorCreation == null
+            )
+            {
+                return BadRequest(new
+                {
+                    error = "Provide non-negative account limits and allowVendorCreation"
+                });
+            }
+
+            var results = await _customerAdminService.UpdateSubscriptionSettingsAsync(
+                subscriptionId,
+                request.MaxAccounts.Value,
+                request.MaxConcurrentAccountsPerMonth.Value,
+                request.AllowVendorCreation.Value);
+            
+            if (results == null)
+            {
+                return NotFound(new
+                {
+                    error = "Subscription not found"
+                });
+            }
+
+            return Ok(results);
+        }
+        
     }   
 }

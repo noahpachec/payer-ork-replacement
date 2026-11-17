@@ -24,4 +24,11 @@ public interface ICustomerAdminService
     Task<int> SoftDeleteCustomerAsync(string customerId);
 
     Task<int> SoftDeleteCustomersAsync(List<string> customerIds);
+
+    Task<UpdateSubscriptionSettingsResponse?> UpdateSubscriptionSettingsAsync(
+        string subscriptionId,
+        int maxAccounts,
+        int maxConcurrentAccountsPerMonth,
+        bool allowVendorCreation
+    );
 }

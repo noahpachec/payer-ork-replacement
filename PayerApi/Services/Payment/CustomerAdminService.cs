@@ -211,4 +211,35 @@ public class CustomerAdminService : ICustomerAdminService
             
         return updatedCount;
     }
+
+    public async Task<UpdateSubscriptionSettingsResponse?> UpdateSubscriptionSettingsAsync(
+        string subscriptionId,
+        int maxAccounts,
+        int maxConcurrentAccountsPerMonth,
+        bool allowVendorCreation)
+    {
+        var subscription = await _context.Subscriptions
+            .Where(subscription =>
+                subscription.Id == subscriptionId)
+                    .FirstOrDefaultAsync();
+        
+        if (subscription == null)
+        {
+            return null;
+        }
+
+        subscription.MaxAccounts = maxAccounts;
+        subscription.MaxConcurrentAccountsPerMonth = maxConcurrentAccountsPerMonth;
+        subscription.AllowVendorCreation = allowVendorCreation;
+        
+        await _context.SaveChangesAsync();
+
+        return new UpdateSubscriptionSettingsResponse
+        {
+            SubscriptionId = subscription.Id,
+            MaxAccounts = subscription.MaxAccounts,
+            MaxConcurrentAccountsPerMonth = subscription.MaxConcurrentAccountsPerMonth,
+            AllowVendorCreation = subscription.AllowVendorCreation,
+        };
+    }
 }
