@@ -241,5 +241,37 @@ public class CustomerAdminService : ICustomerAdminService
             MaxConcurrentAccountsPerMonth = subscription.MaxConcurrentAccountsPerMonth,
             AllowVendorCreation = subscription.AllowVendorCreation,
         };
+
     }
+    
+        public async Task<UpdateWalletSettingsResponse?> UpdateWalletSettingsAsync(
+        long walletPk,
+        long expiry)
+        {
+
+            var updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            var wallet = await _context.Wallets
+                .Where(wallet => wallet.WalletPK == walletPk)
+                .FirstOrDefaultAsync();
+            
+            
+            if (wallet == null)
+            {
+                return null;
+            }
+
+            wallet.Expiry = expiry;
+            wallet.UpdatedAt = updatedAt;
+
+            await _context.SaveChangesAsync();
+
+            return new UpdateWalletSettingsResponse
+            {
+                WalletPK = wallet.WalletPK,
+                Expiry = wallet.Expiry,
+                UpdatedAt = wallet.UpdatedAt,
+            };
+        }
+    
 }

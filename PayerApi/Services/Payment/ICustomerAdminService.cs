@@ -31,4 +31,9 @@ public interface ICustomerAdminService
         int maxConcurrentAccountsPerMonth,
         bool allowVendorCreation
     );
+
+    Task<UpdateWalletSettingsResponse?> UpdateWalletSettingsAsync(
+        long walletPk,
+        long expiry
+    );
 }

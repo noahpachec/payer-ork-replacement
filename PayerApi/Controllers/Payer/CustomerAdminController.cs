@@ -169,6 +169,41 @@ namespace Ork.Controllers.Payer
 
             return Ok(results);
         }
+
+        [HttpPatch("{walletPk}/UpdateWallet")]
+
+        public async Task<IActionResult> UpdateWalletSettings(
+            [FromRoute] long walletPk,
+            [FromBody] UpdateWalletSettingsRequest request)
+        {
+            if (
+                !ModelState.IsValid ||
+                request == null ||
+                walletPk <= 0 ||
+                request.Expiry == null ||
+                request.Expiry < DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            )
+            {
+                return BadRequest(new
+                {
+                    error = "Date entered cannot be an expired date"
+                });
+            }
+
+            var results = await _customerAdminService.UpdateWalletSettingsAsync(
+                walletPk,
+                request.Expiry.Value);
+
+            if (results == null)
+            {
+                return NotFound(new
+                {
+                    error = "Wallet not found"
+                });
+            }
+
+            return Ok(results);
+        }
         
     }   
 }
